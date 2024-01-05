@@ -1,0 +1,21 @@
+Package: DeLTree
+Title: A likelihood based discret time model to reconstruct phylogeny on Linegae Tracing model
+Version: 0.0.5
+Authors@R: 
+    person("Qing", "Ye", , "yeqing2021@sibs.ac.cn", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: 
+  Allowing simple and quick reconstruction of lineage tracing data with maximum likelihood framework.
+  The number of state should be less than 10 and number of site should not exceed 1000.
+  We also provide a simulation framework for quick understanding of the input requirement.It specialized in detailed 
+  modelling of lineage tracing experiment with generation time as basic unit of edge length and fixed tree height as fixed duration
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Depends: 
+    phangorn
+Imports: 
+    caret,
+    tidyr
