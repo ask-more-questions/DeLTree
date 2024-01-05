@@ -88,8 +88,8 @@ get_probmatrix <- function(t,mu,alpha,state_num){
 
 
 get_parent <- function(child_left,child_right,left_branch_length,right_branch_length,mu,alpha){
-  site_num <- dim(left_child)[1]
-  state_num <- dim(left_child)[2]
+  site_num <- dim(child_left)[1]
+  state_num <- dim(child_left)[2]
   parent <- array(data = 0,dim = c(site_num,state_num))
   constant.pr <- diag(1,nrow = state_num,ncol = state_num)
   for (i in 1:site_num){
