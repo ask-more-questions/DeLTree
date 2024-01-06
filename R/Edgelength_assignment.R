@@ -1,8 +1,8 @@
-library(tidyr)
-
 #' @title Assign barcode of unobserved node with parsimony
 #'
 #' @param phylo_c an object of class "phylo"
+#'
+#' @export
 #'
 #' @return a dataframe which stores the barcode of all nodes including observed leaves and unobserved internal node
 get_node_character <- function(phylo_c){
@@ -36,6 +36,8 @@ get_node_character <- function(phylo_c){
 #' @param branch_r branch length of right child
 #' @param r_height branch length incoming edges connecting the common ancestor node of two cherry to the fixed root
 #'
+#' @export
+#'
 #' @return a likelihood score on the cherry structure
 #'
 cherry_likelihood <- function(left_child,right_child,mu,alpha,non_bifur_pro,branch_l,branch_r,r_height){
@@ -53,9 +55,13 @@ cherry_likelihood <- function(left_child,right_child,mu,alpha,non_bifur_pro,bran
 #' @title a bottom-up approach to assign the edge length under fixed tree height
 #'
 #' @param phylo an object of class "phylo"
-#' @param non_bifur_pro a parameter which describe the proportion of cell not bifurcated after one generation time.
 #' @param nGen fixed tree height based on experimental duration and one generation of certain cell
 #' @param state_num number of possible mutation outcomes
+#' @param mu a vector of site specific mutation probability.
+#' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
+#' @param non_bifur_pro a parameter which describe the proportion of cell not bifurcated after one generation time.
+#'
+#' @export
 #'
 #' @description
 #' a bottom-up approach to assign the edge length of a phylo object.The edge length will be the
@@ -65,7 +71,7 @@ cherry_likelihood <- function(left_child,right_child,mu,alpha,non_bifur_pro,bran
 #'
 #' @return an object of class "phylo"
 
-direct_assignment<- function(phylo,non_bifur_pro,nGen,state_num){
+direct_assignment<- function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   node_h <- list()
   n_sample <- length(phylo$tip.label)
   node_h$nheight[1:n_sample] <- nGen

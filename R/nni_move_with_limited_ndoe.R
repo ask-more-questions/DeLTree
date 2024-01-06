@@ -3,6 +3,8 @@
 #'
 #' @param phylo  an object of class "phylo"
 #'
+#' @export
+#'
 #' @return a vector which stores the node within a subtree full of replicate barcode sequence
 within_replicate_node <- function(phylo){
   n_sample <- length(phylo$tip.label)
@@ -44,6 +46,8 @@ get_nni_node_noRT <- function(phylo){
 #'
 #' @param phylo  an object of class "phylo".
 #'
+#' @export
+#'
 #' @return a list of nni trees
 nni_tree_noRT <- function(phylo){
   nni_node <- get_nni_node_noRT(phylo)
@@ -79,6 +83,8 @@ nni_tree_noRT <- function(phylo){
 #' @param node_edge_length a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 #' @param mu a vector of site specific mutation probability.
 #' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
+#'
+#' @export
 #'
 #' @return A list of matrix of number of nodes
 
@@ -122,6 +128,8 @@ emurate_node_path_withpseudonode <- function(phylo,parent.node,node_edge_length,
 #' @param phylo an object of class "phylo".
 #' @param nGen fixed tree height based on experimental duration and one generation of certain cell
 #'
+#' @export
+#'
 #' @return a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 
 initial_edgelength_pseudonode <- function(phylo,nGen){
@@ -139,6 +147,8 @@ initial_edgelength_pseudonode <- function(phylo,nGen){
 #'
 #' @param edgelength a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 #'
+#' @export
+#'
 #' @return a vector of node index
 
 get_sparenode_name <- function(edgelength){
@@ -151,6 +161,8 @@ get_sparenode_name <- function(edgelength){
 #'
 #' @param edgelength a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 #' @param free_node_initial  index of parent node whose two descendant node both have non bifurcation events
+#'
+#' @export
 #'
 #' @return a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 edgelength_inter <- function(edgelength,free_node_initial){
@@ -172,6 +184,8 @@ edgelength_inter <- function(edgelength,free_node_initial){
 #' @param nGen fixed tree height based on experimental duration and one generation of certain cell
 #' @param non_bifur_pro A parameter which describes the proportion of cell not bifurcated after one generation time
 #' @param state_num number of mutation outcomes
+#'
+#' @export
 #'
 #' @return a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 
@@ -225,14 +239,16 @@ local_optiaml_withpseudoRT <- function(tree,mu,alpha,nGen,non_bifur_pro,state_nu
 #' @param non_bifur_pro A parameter which describes the proportion of cell not bifurcated after one generation time
 #' @param state_num number of mutation outcomes
 #'
+#' @export
+#'
 #' @return a list of nni trees with optimized edge length and likelihood.
 
 nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bifur_pro,state_num){
   nni_recorder <- list()
   state <- sapply(strsplit(x=current_tree$tip.label,split = "_"),"[")[2,]
   node_info <- t(sapply(strsplit(state,split = ""),"["))
-  tree.node_c <- onehot_coding(prefix_state(node_info,state_num),state_num)
-  n_sample <- length(tree.node_c)
+  parent.node <- onehot_coding(prefix_state(node_info,state_num),state_num)
+  n_sample <- length(parent.node)
   nni_tree <-  nni_tree_noRT(current_tree)
   # node_depth <- sapply(nni_tree,function(x){max(node.depth(x,method = 2))-1})
   # nni_tree <- nni_tree[node_depth <= nGen]

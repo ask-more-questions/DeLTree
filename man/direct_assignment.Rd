@@ -4,16 +4,20 @@
 \alias{direct_assignment}
 \title{a bottom-up approach to assign the edge length under fixed tree height}
 \usage{
-direct_assignment(phylo, non_bifur_pro, nGen, state_num)
+direct_assignment(phylo, nGen, state_num, mu, alpha, non_bifur_pro)
 }
 \arguments{
 \item{phylo}{an object of class "phylo"}
 
-\item{non_bifur_pro}{a parameter which describe the proportion of cell not bifurcated after one generation time.}
-
 \item{nGen}{fixed tree height based on experimental duration and one generation of certain cell}
 
 \item{state_num}{number of possible mutation outcomes}
+
+\item{mu}{a vector of site specific mutation probability.}
+
+\item{alpha}{a list of vectors which describe the site specific priors of mutation outcomes.}
+
+\item{non_bifur_pro}{a parameter which describe the proportion of cell not bifurcated after one generation time.}
 }
 \value{
 an object of class "phylo"

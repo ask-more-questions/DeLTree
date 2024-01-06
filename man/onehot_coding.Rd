@@ -2,7 +2,7 @@
 % Please edit documentation in R/likelihood_reconstruction.R
 \name{onehot_coding}
 \alias{onehot_coding}
-\title{Title}
+\title{One hot encoding}
 \usage{
 onehot_coding(processed_tip_label, state_num)
 }
@@ -15,6 +15,7 @@ onehot_coding(processed_tip_label, state_num)
 A list with the length of cell number. each element include a site_num x state_num binary matrix
 }
 \description{
-By default, this function take a matrix which stores the barcode information of observed cell and convert the barcode sequence into m(length of the barcode or mutation site) x n(number of mutation outcomes) binary matrix with one hot encoding techniques,
+\if{html}{\out{<div class="sourceCode">}}\preformatted{By default, this function take a matrix which stores the barcode information of observed cell and convert the barcode sequence into m(length of the barcode or mutation site) x n(number of mutation outcomes) binary matrix with one hot encoding techniques,
 the binary matrix of barcode are saved in the list of n cells.
+}\if{html}{\out{</div>}}
 }

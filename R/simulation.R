@@ -6,6 +6,8 @@
 #' @param nGen fixed tree height of n generation time
 #'
 #' @return an object of class "phylo"
+#'
+#' @export
 topology_simulation <- function(bifur_pro,nGen){
   tree_i <- stree(2,"balanced",tip.label = 1:2)
   tree_i$edge.length <- rep(1,nrow(tree_i$edge))
@@ -27,8 +29,18 @@ topology_simulation <- function(bifur_pro,nGen){
   }
   return(tree_i)
 }
-# an prospective-forward approach to simulate the tree.
 
+
+#' @title Probability matrix of dicrete edge length
+#'
+#' @param t integer.number of generation or number of bifurcation
+#' @param mu a vector of site specific mutation probability.
+#' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
+#' @param state_num number of mutation outcomes.
+#'
+#' @export
+#'
+#' @return A probability matrix
 get_probmatrix <- function(t,mu,alpha,state_num){
   if(length(alpha) != 1){
     if(round(sum(alpha),digits = 3) !=1)
@@ -58,7 +70,8 @@ get_probmatrix <- function(t,mu,alpha,state_num){
 #' @param state_num number of possible mutation outcomes
 #'
 #' @return a binary matrix which stores the barcode
-
+#'
+#' @export
 node_state_sim <- function(branch_length,parent_state,mu,alpha,site_num,state_num){
   node_state <- matrix(data = rep(rep(0,state_num),each = site_num),nrow =site_num,byrow = FALSE)
   yesorno <- runif(site_num,0,1)
@@ -79,6 +92,8 @@ node_state_sim <- function(branch_length,parent_state,mu,alpha,site_num,state_nu
 #' @param state_num number of possible mutation outcomes
 #'
 #' @return a vector of barcode
+#'
+#' @export
 
 reverse_onehot_encoding  <-  function(n_state_matrix,state_num){
   state <- c()
@@ -98,6 +113,8 @@ reverse_onehot_encoding  <-  function(n_state_matrix,state_num){
 #' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
 #'
 #' @return a data frame with two columns which saves cell name and barcode of leaves respectively
+#'
+#' @export
 
 lineage_sim <- function(tree,state_num,site_num,mu,alpha){
   n_cell <- length(tree$tip.label)

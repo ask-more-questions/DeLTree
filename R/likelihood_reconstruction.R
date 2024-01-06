@@ -1,4 +1,4 @@
-#' Title
+#' Irreversible consensus
 #'
 #' @param node_info  A n(cell_num) x m(site_num) matrix which stores the barcode
 #' @param site_index  The index of two descendant cell of a node
@@ -6,6 +6,7 @@
 #' @description
 #' This function applies a parsimony method to assign the barcode with the irreversible rule of mutation and the barcode of its two direct descendant.
 #'
+#' @export
 #'
 #' @return A vector of with the length of site_num which stores the barcode of the parent node
 get_consensus <- function(node_info,site_index,site_num){
@@ -20,14 +21,14 @@ get_consensus <- function(node_info,site_index,site_num){
 }
 
 
-#' Title
+#' One hot encoding
 #'
 #' @param processed_tip_label barcode sequence with a prefix
 #' @param state_num number of mutation outcomes
 #' @description
-#' By default, this function take a matrix which stores the barcode information of observed cell and convert the barcode sequence into m(length of the barcode or mutation site) x n(number of mutation outcomes) binary matrix with one hot encoding techniques,
+#'     By default, this function take a matrix which stores the barcode information of observed cell and convert the barcode sequence into m(length of the barcode or mutation site) x n(number of mutation outcomes) binary matrix with one hot encoding techniques,
 #'     the binary matrix of barcode are saved in the list of n cells.
-#'
+#' @export
 #'
 #' @return A list with the length of cell number. each element include a site_num x state_num binary matrix
 
@@ -49,6 +50,7 @@ onehot_coding<- function(processed_tip_label,state_num){
 #' @description
 #' A preprocess step which adds a prefix which contains all possible mutation outcomes to ensure the dimention of binary matrix before one hot encoding
 #'
+#' @export
 #'
 #' @return the barcode sequence with a prefix which contains all possible mutation outcomes
 prefix_state <- function(node_info,state_num){
@@ -66,6 +68,8 @@ prefix_state <- function(node_info,state_num){
 #' @param mu a vector of site specific mutation probability.
 #' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
 #' @param state_num number of mutation outcomes.
+#'
+#' @export
 #'
 #' @return A probability matrix
 
@@ -109,6 +113,7 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 #'    as the base and number of non-bifurcation event as the power to propose a topology biased
 #'    score under the discrete edge length and fixed tree height model in which
 #'    edge length bigger than one implies (n-1) continuous non bifurcation event.
+#' @export
 #'
 #' @return a length-one numeric
 bifur_punish<- function(bifurcation_pro,edgelength){
@@ -131,6 +136,13 @@ bifur_punish<- function(bifurcation_pro,edgelength){
 #' this function compute a pairwise likelihood of two cells orgins from a common ancestor within one bifurcation time. Given a tree height 2,
 #'     there is an optional unobserved ancestor assiociated with an bifurcation event in the cell. The subtraction of having and
 #'     not having an internal node are used as the pairwise distance of two barocdes in two generation time.
+#'
+#' @import ape
+#' @import phangorn
+#' @importFrom stats predict runif
+#' @importFrom utils tail
+#'
+#' @export
 #'
 #' @return a non-negative score which describe  how many times its more likely to bifurcate in one generation time than not to bifurcate.
 str_cherry_lik <- function(left_child,right_child,mu,alpha,non_bifur_pro){
@@ -157,57 +169,17 @@ str_cherry_lik <- function(left_child,right_child,mu,alpha,non_bifur_pro){
 }
 
 
-#' @title Precluster of replicates
-#'
-#' @param charatcer_info  an dataframe with two columns which saves cell name and barcode respectively
-#'
-#' @description
-#' This function remove the stocastic influence of replicates by clustering the replicates  in advance.
-#'     An atrribute 'round' was set as the minimum tree height of the cluster for sake of the fixed tree.
-#'     for example, a cluster with one cell has a round atrribute of 1, and a cluster of 6 cell has a round attribute of 4.
-#'     After the preprocess step, a list with three attribute:cluster_topo,barcode,round will be new candicates for tree reconstruction.
-#'
-#' @return a list with three attribute:cluster_topo,barcode,round
-
-unique_state <- function(charatcer_info){
-  n_node <- nrow(character_info)
-  recorder <- list()
-  for(i in 1:n_node){
-    recorder$cherry_index[[i]] <- paste(character_info$cell[i],character_info$state[i],sep = "_")
-    recorder$cherry_code[[i]] <- node_info[i,]
-    recorder$round[[i]] <- 0
-  }
-  unique_state <- names(table(character_info$state))
-  for (i in 1:length(unique_state)){
-    recorder$cherry_code[[n_node+i]] <- as.integer(strsplit(unique_state[i],split = "")[[1]])
-    replicate_group <- paste((character_info$cell[which(character_info$state %in% unique_state[i])]),unique_state[i],sep = "_")
-    recorder$round[[n_node+i]] <- ceiling(log2(length(replicate_group)) + 1)
-    while(length(replicate_group)>=4){
-      for (t in 1:floor(length(replicate_group)/2)){
-        replicate_group[t] <- paste("(",paste(replicate_group[t],replicate_group[t+1],sep = ","),")",sep = "")
-        replicate_group <- replicate_group[-(t+1)]
-      }
-    }
-    if (length(replicate_group)==3){
-      replicate_group <- paste("(",paste("(",paste(replicate_group[1],replicate_group[2],sep = ","),")",sep = ""),",",replicate_group[3],")",sep = "")
-    }
-    if(length(replicate_group)==2){
-      replicate_group <- paste("(",paste(replicate_group[1],replicate_group[2],sep = ","),")",sep = "")
-    }
-    recorder$cherry_index[[n_node+i]] <- replicate_group
-  }
-  return(recorder)
-}
-
-
-
 #' Add pseudo node
 #'
 #' @param phylo an object of class "phylo".
 #'
-#' @return a phylo structure
 #' @description
 #' A function which adds a node to the root which allows flexible observation time
+#'
+#' @export
+#'
+#' @return a phylo structure
+
 
 add_pseudonode <- function(phylo){
   n_sample <- length(phylo$tip.label)
@@ -234,9 +206,12 @@ add_pseudonode <- function(phylo){
 #' @param site_num  the length of barcode
 #' @param state_num number of mutation outcomes
 #' @param precluster_replicate Logical. whether or not to cluster the cells with identical barcodes as cluster before reconstruct phylogeny.default as TRUE.
+#'
 #' @description
 #' This function reconstruct the tree based on the pairwise likelihood of having one bifurcation in two generation time under the bottom up approach.
 #'     The barcode of unobserved internal vertex follows the irreversible mutation rule and the fixed root state.
+#'
+#' @export
 #'
 #' @return a phylo structure without edge length
 

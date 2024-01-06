@@ -2,7 +2,7 @@
 % Please edit documentation in R/likelihood_reconstruction.R
 \name{get_consensus}
 \alias{get_consensus}
-\title{Title}
+\title{Irreversible consensus}
 \usage{
 get_consensus(node_info, site_index, site_num)
 }
