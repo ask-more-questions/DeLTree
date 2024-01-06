@@ -91,6 +91,17 @@ get_probmatrix <- function(t,mu,alpha,state_num){
 }
 
 
+#' Likelihood computation with matrix
+#'
+#' @param child_left n(length of site) x m(number of states in one site) binary matrix which saves the barcode of left node of a cherry
+#' @param child_right n(length of site) x m(number of states in one site) binary matrix which saves the barcode of right node of a cherry
+#' @param left_branch_length left branch length
+#' @param right_branch_length right branch length
+#' @param mu a vector of site specific mutation probability.
+#' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
+#'
+#' @return
+#' @export
 get_parent <- function(child_left,child_right,left_branch_length,right_branch_length,mu,alpha){
   site_num <- dim(child_left)[1]
   state_num <- dim(child_left)[2]

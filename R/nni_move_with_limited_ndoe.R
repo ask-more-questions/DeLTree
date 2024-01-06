@@ -22,6 +22,12 @@ within_replicate_node <- function(phylo){
 
 
 
+#' Selet nni node
+#'
+#' @param phylo an object of class "phylo"
+#'
+#' @return a list of nni trees
+#' @export
 get_nni_node_noRT <- function(phylo){
   edgelength_c <- cbind(phylo$edge,phylo$edge.length)
   within_replicate_node <- within_replicate_node(phylo)
