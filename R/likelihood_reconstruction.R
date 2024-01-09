@@ -100,7 +100,7 @@ get_probmatrix <- function(t,mu,alpha,state_num){
 #' @param mu a vector of site specific mutation probability.
 #' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
 #'
-#' @return
+#' @return n(length of site) x m(number of states in one site) binary matrix which saves the barcode of common ancestor node of a cherry
 #' @export
 get_parent <- function(child_left,child_right,left_branch_length,right_branch_length,mu,alpha){
   site_num <- dim(child_left)[1]
@@ -117,7 +117,7 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 
 #' @title Topology biased score
 #'
-#' @param bifurcation_pro a parameter which describes the proportion of cell not bifurcated after one generation time.
+#' @param non_bifur_pro a parameter which describes the proportion of cell not bifurcated after one generation time.
 #' @param edgelength a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 #' @description
 #'    This function takes the proportion of  bifurcation event/non bifurcation event
@@ -127,11 +127,11 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 #' @export
 #'
 #' @return a length-one numeric
-bifur_punish<- function(bifurcation_pro,edgelength){
+bifur_punish<- function(non_bifur_pro,edgelength){
   edgelength <- edgelength[-1,]
   non_bifurcation_time <- sum(edgelength[(edgelength[,3]>1),3]-1)
   #reward <- sum(edgelength[,3] == 0)
-  y <- (bifurcation_pro/(1-bifurcation_pro))^non_bifurcation_time
+  y <- (non_bifur_pro/(1-non_bifur_pro))^non_bifurcation_time
   return(y)
 }
 
@@ -221,7 +221,7 @@ add_pseudonode <- function(phylo){
 #' @description
 #' This function reconstruct the tree based on the pairwise likelihood of having one bifurcation in two generation time under the bottom up approach.
 #'     The barcode of unobserved internal vertex follows the irreversible mutation rule and the fixed root state.
-#'
+#' @import caret
 #' @export
 #'
 #' @return a phylo structure without edge length

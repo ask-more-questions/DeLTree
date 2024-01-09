@@ -10,7 +10,8 @@ nni_iter_withedgelength_pseudonode(
   alpha,
   nGen,
   non_bifur_pro,
-  state_num
+  state_num,
+  edgelength_assignment = "bottom up iteration"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ nni_iter_withedgelength_pseudonode(
 \item{non_bifur_pro}{A parameter which describes the proportion of cell not bifurcated after one generation time}
 
 \item{state_num}{number of mutation outcomes}
+
+\item{edgelength_assignment}{two options of edgelength assignment, choose from c("bottom up iteration","direkt assignment"). Default as direkt assignment}
 }
 \value{
 a list of nni trees with optimized edge length and likelihood.

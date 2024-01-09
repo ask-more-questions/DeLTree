@@ -26,6 +26,9 @@ get_parent(
 
 \item{alpha}{a list of vectors which describe the site specific priors of mutation outcomes.}
 }
+\value{
+n(length of site) x m(number of states in one site) binary matrix which saves the barcode of common ancestor node of a cherry
+}
 \description{
 Likelihood computation with matrix
 }

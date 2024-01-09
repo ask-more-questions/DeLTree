@@ -75,6 +75,8 @@ direct_assignment<- function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   node_h <- list()
   n_sample <- length(phylo$tip.label)
   node_h$nheight[1:n_sample] <- nGen
+  if(phylo$Nnode==n_sample) # 2023.01.08修正，未在github上更新
+    phylo <- remove_pseudonode(phylo)
   node_path <- nodepath(phylo)
   node_df <- as.data.frame(sapply(node_path, "[", i = 1:max(sapply(node_path,length))))
   node_df[is.na(node_df)] <- 0
@@ -107,3 +109,19 @@ direct_assignment<- function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   return(phylo)
 }
 
+#' Remove the pseudonode added
+#'
+#' @param phylo an object of "phylo"
+#'
+#' @return phylo
+#' @export
+remove_pseudonode <- function(phylo){
+  n_sample <- length(phylo$tip.label)
+  phylo$edge[which(phylo$edge[,1] > n_sample),1] <- phylo$edge[which(phylo$edge[,1] > n_sample),1] - 1
+  phylo$edge[which(phylo$edge[,2] > n_sample),2] <- phylo$edge[which(phylo$edge[,2] > n_sample),2] - 1
+  phylo$edge <- phylo$edge[-1,]
+  if(length(phylo$edge.length) != 0)
+    phylo$edge.length <- phylo$edge.length[-1]
+  phylo$Nnode <-  phylo$Nnode-1
+  return(phylo)
+}

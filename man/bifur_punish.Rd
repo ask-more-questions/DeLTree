@@ -4,10 +4,10 @@
 \alias{bifur_punish}
 \title{Topology biased score}
 \usage{
-bifur_punish(bifurcation_pro, edgelength)
+bifur_punish(non_bifur_pro, edgelength)
 }
 \arguments{
-\item{bifurcation_pro}{a parameter which describes the proportion of cell not bifurcated after one generation time.}
+\item{non_bifur_pro}{a parameter which describes the proportion of cell not bifurcated after one generation time.}
 
 \item{edgelength}{a data frame which bind the edge attribute and edge.length attribute of a phylo structure.}
 }

@@ -77,7 +77,7 @@ node_state_sim <- function(branch_length,parent_state,mu,alpha,site_num,state_nu
   yesorno <- runif(site_num,0,1)
   #intermediate_state <-  matrix(data = rep(rep(0,state_num),each = site_num),nrow =site_num,byrow = FALSE)
   for (i in 1:site_num){
-    intermediate_state <- parent_state[i,] %*% get_probmatrix(t = branch_length,mu[i],alpha,state_num)
+    intermediate_state <- parent_state[i,] %*% get_probmatrix(t = branch_length,mu[i],alpha[[i]],state_num)
     condition <- sapply(1:state_num,function(x){return(sum(intermediate_state[1:x]))})
     s_index <-  which(condition-yesorno[i] >0)[1]
     node_state[i,s_index] <- 1

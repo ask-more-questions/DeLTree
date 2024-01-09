@@ -97,8 +97,8 @@ nni_tree_noRT <- function(phylo){
 emurate_node_path_withpseudonode <- function(phylo,parent.node,node_edge_length,mu,alpha){
   node_path <- nodepath(phylo)
   node_df <- as.data.frame(sapply(node_path, "[", i = 1:max(sapply(node_path,length))))
-  site_num <- dim(parent_node[[1]])[1]
-  state_num <- dim(parent_node[[1]])[2]
+  site_num <- dim(parent.node[[1]])[1]
+  state_num <- dim(parent.node[[1]])[2]
   node_df[is.na(node_df[,])] <- 0# drop na value as 0
   node_dep <- node.depth(phylo,method = 2)
   node_max <- max(node_dep)
@@ -118,15 +118,15 @@ emurate_node_path_withpseudonode <- function(phylo,parent.node,node_edge_length,
         parent_index  <- node_df[(current_g-1),i]
         br_left_index <- (node_edge_length[,1]  %in%  parent_index) & (node_edge_length[,2] %in% left_index)
         br_right_index <- (node_edge_length[,1]  %in% parent_index) & (node_edge_length[,2] %in% right_index)
-        parent_node[[parent_index]] <- get_parent(parent_node[[left_index]],parent_node[[right_index]],
+        parent.node[[parent_index]] <- get_parent(parent.node[[left_index]],parent.node[[right_index]],
                                                   node_edge_length[br_left_index,3], node_edge_length[br_right_index,3],mu,alpha)
         }
       }
   }
-  parent_node[[n_sample+1]] <- matrix(data = 0,nrow = site_num,ncol = state_num)
+  parent.node[[n_sample+1]] <- matrix(data = 0,nrow = site_num,ncol = state_num)
   for (i in 1:site_num)
-    parent_node[[n_sample+1]][i,] <- parent_node[[n_sample+2]][i,] %*% t(get_probmatrix(t = node_edge_length[1,3],mu = mu[i],alpha = alpha[[i]],state_num))
-  return(parent_node)
+    parent.node[[n_sample+1]][i,] <- parent.node[[n_sample+2]][i,] %*% t(get_probmatrix(t = node_edge_length[1,3],mu = mu[i],alpha = alpha[[i]],state_num))
+  return(parent.node)
 }
 
 #' @title Initial edgelength assignment with longest pending edge
@@ -209,20 +209,20 @@ local_optiaml_withpseudoRT <- function(tree,mu,alpha,nGen,non_bifur_pro,state_nu
   result <- list()
   while(length(initial_node!=0) & initial_node[1] != (n_sample+1)){
     move <- move + 1
-    likelihood_c <- emurate_node_path_withpseudonode(phylo = tree,parent.node,node_edge_length = edgelength_c,mu = mu,alpha = alpha)
-    score_c <- sum(log10(likelihood_c[[n_sample+1]][,2])) + log10(bifur_punish(bifurcation_pro = non_bifur_pro,edgelength = edgelength_c))
+    likelihood_c <- emurate_node_path_withpseudonode(phylo = tree,parent.node = parent.node,node_edge_length = edgelength_c,mu = mu,alpha = alpha)
+    score_c <- sum(log10(likelihood_c[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = edgelength_c))
     new_edgelength <- edgelength_inter(edgelength = edgelength_c,free_node_initial = initial_node[1])
-    new_likelihood <- emurate_node_path_withpseudonode(phylo = tree,parent.node,node_edge_length = new_edgelength,mu = mu,alpha = alpha)
-    score_new <- sum(log10(new_likelihood[[n_sample+1]][,2])) + log10(bifur_punish(bifurcation_pro = non_bifur_pro,edgelength = new_edgelength))
+    new_likelihood <- emurate_node_path_withpseudonode(phylo = tree,parent.node = parent.node,node_edge_length = new_edgelength,mu = mu,alpha = alpha)
+    score_new <- sum(log10(new_likelihood[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = new_edgelength))
     c <- 1
     while ((c <= nGen)&(score_new > score_c))
     {edgelength_c <- new_edgelength
     c <- c+1
-    likelihood_c <- emurate_node_path_withpseudonode(phylo = tree,parent.node,node_edge_length  = edgelength_c,mu = mu,alpha = alpha)
-    score_c <- sum(log10(likelihood_c[[n_sample+1]][,2])) + log10(bifur_punish(bifurcation_pro = non_bifur_pro,edgelength = edgelength_c))
+    likelihood_c <- emurate_node_path_withpseudonode(phylo = tree,parent.node = parent.node,node_edge_length  = edgelength_c,mu = mu,alpha = alpha)
+    score_c <- sum(log10(likelihood_c[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = edgelength_c))
     new_edgelength <- edgelength_inter(edgelength = edgelength_c,free_node_initial = initial_node[1])
-    new_likelihood <- emurate_node_path_withpseudonode(phylo = tree,parent.node,node_edge_length = new_edgelength,mu = mu,alpha = alpha)
-    score_new <- sum(log10(new_likelihood[[n_sample+1]][,2])) + log10(bifur_punish(bifurcation_pro = non_bifur_pro,edgelength = new_edgelength))
+    new_likelihood <- emurate_node_path_withpseudonode(phylo = tree,parent.node=parent.node,node_edge_length = new_edgelength,mu = mu,alpha = alpha)
+    score_new <- sum(log10(new_likelihood[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = new_edgelength))
     }
     tree.freenode
     new_node <- sort(get_sparenode_name(edgelength_c),decreasing = TRUE)
@@ -244,12 +244,14 @@ local_optiaml_withpseudoRT <- function(tree,mu,alpha,nGen,non_bifur_pro,state_nu
 #' @param nGen fixed tree height based on experimental duration and one generation of certain cell
 #' @param non_bifur_pro A parameter which describes the proportion of cell not bifurcated after one generation time
 #' @param state_num number of mutation outcomes
+#' @param edgelength_assignment two options of edgelength assignment, choose from c("bottom up iteration","direkt assignment"). Default as direkt assignment
 #'
 #' @export
 #'
 #' @return a list of nni trees with optimized edge length and likelihood.
-
-nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bifur_pro,state_num){
+#'
+#'
+nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bifur_pro,state_num,edgelength_assignment = "bottom up iteration"){
   nni_recorder <- list()
   state <- sapply(strsplit(x=current_tree$tip.label,split = "_"),"[")[2,]
   node_info <- t(sapply(strsplit(state,split = ""),"["))
@@ -260,14 +262,20 @@ nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bi
   # nni_tree <- nni_tree[node_depth <= nGen]
   nni_likelihood <- c()
   for (i in 1:length(nni_tree)){
-    edgelength_c <- local_optiaml_withpseudoRT(tree=nni_tree[[i]],mu = mu,alpha=alpha,nGen,non_bifur_pro,state_num)
-    nni_tree[[i]]$edge <- edgelength_c[,1:2]
-    nni_tree[[i]]$edge.length <- edgelength_c[,3]
-    nni_likelihood[i] <- sum(log10(emurate_node_path_withpseudonode(phylo = nni_tree[[i]],parent.node,node_edge_length = edgelength_c,mu,alpha)[[n_sample+1]][,2])) + log10(bifur_punish(bifurcation_pro = non_bifur_pro,edgelength = edgelength_c))
-  }
+    if (edgelength_assignment == "bottom up iteration"){
+      edgelength_c <- local_optiaml_withpseudoRT(tree=nni_tree[[i]],mu = mu,alpha=alpha,nGen,non_bifur_pro,state_num)
+      nni_tree[[i]]$edge <- edgelength_c[,1:2]
+      nni_tree[[i]]$edge.length <- edgelength_c[,3]
+      nni_likelihood[i] <- sum(log10(emurate_node_path_withpseudonode(phylo = nni_tree[[i]],parent.node = parent.node,node_edge_length = edgelength_c,mu,alpha)[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = edgelength_c))
+    } else if (edgelength_assignment == "direkt assignment"){
+      nni_tree[[i]] <- direct_assignment(phylo = nni_tree[[i]],nGen=nGen,state_num,mu,alpha,non_bifur_pro)
+      edgelength_c <- cbind(nni_tree[[i]]$edge,nni_tree[[i]]$edge.length)
+      nni_likelihood[i] <- sum(log10(emurate_node_path_withpseudonode(phylo = nni_tree[[i]],parent.node = parent.node,node_edge_length = edgelength_c,mu,alpha)[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = edgelength_c))
+    } else stop("Wrong input for edgelength_assignment")
+    }
   nni_best <- which(nni_likelihood == max(nni_likelihood))[1]
   nni_best_tree <- nni_tree[[nni_best]]
-  nni_recorder$likelihood <- nni_likelihood
+  nni_recorder$likelihood <- nni_likelihood[nni_best]
   nni_recorder$best_tree <- nni_best_tree
   return(nni_recorder)
 }
