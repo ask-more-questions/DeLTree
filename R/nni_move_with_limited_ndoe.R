@@ -258,8 +258,8 @@ nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bi
   parent.node <- onehot_coding(prefix_state(node_info,state_num),state_num)
   n_sample <- length(parent.node)
   nni_tree <-  nni_tree_noRT(current_tree)
-  # node_depth <- sapply(nni_tree,function(x){max(node.depth(x,method = 2))-1})
-  # nni_tree <- nni_tree[node_depth <= nGen]
+  node_depth <- sapply(nni_tree,function(x){max(node.depth(x,method = 2))-2})
+  nni_tree <- nni_tree[node_depth <= nGen]
   nni_likelihood <- c()
   for (i in 1:length(nni_tree)){
     if (edgelength_assignment == "bottom up iteration"){
