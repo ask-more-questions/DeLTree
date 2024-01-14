@@ -222,6 +222,7 @@ add_pseudonode <- function(phylo){
 #' This function reconstruct the tree based on the pairwise likelihood of having one bifurcation in two generation time under the bottom up approach.
 #'     The barcode of unobserved internal vertex follows the irreversible mutation rule and the fixed root state.
 #' @import caret
+#' @import phytools
 #' @export
 #'
 #' @return a phylo structure without edge length

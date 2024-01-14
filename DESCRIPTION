@@ -18,6 +18,7 @@ Depends:
     phangorn
 Imports: 
     caret,
+    phytools,
     stats,
     tidyr,
     utils
