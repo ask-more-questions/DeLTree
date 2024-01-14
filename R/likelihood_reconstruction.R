@@ -317,7 +317,7 @@ likelihood_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alterna
     ntaxa <- length(which(unlist(sapply(recorder$round,"["))[1:n_node] == round))
   }
   tree_txt <- paste(recorder$cherry_index[[n_node]],";root",sep = "")
-  recon_tree <- read.tree(text = tree_txt)
+  recon_tree <- read.newick(text = tree_txt)
   return(recon_tree)
 }
 
