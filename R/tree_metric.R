@@ -136,3 +136,49 @@ triplet_distance_weighted <- function(tree1, tree2,normalized = TRUE) {
     triplet_dist <- triplet_dist/choose(n_taxa,3)
   return(triplet_dist)
 }
+
+
+#' Compute Colless imbalance
+#'
+#' @param tree a phylogenetic tree
+#'
+#' @return colless imbalance value
+
+colless_index  <- function(tree){
+  L <- length(tree$tip.label)
+  colless_value <- 0
+  for(i in 1:tree$Nnode){
+    child_taxa <- Descendants(x=tree,node = L+i,type = "children")
+    if(length(child_taxa) == 1)
+      next
+    differ <- abs(node.depth(phy = tree,method = 1)[child_taxa[1]]-node.depth(phy = tree,method = 1)[child_taxa[2]])
+    colless_value <- colless_value+differ
+  }
+  colless_value <- colless_value*(2/((L-1)*(L-2)))
+  return(colless_value)
+}
+
+#' Weighted colless index
+#'
+#' @param tree a phylogenetic tree
+#'
+#' @return  colless imbalance value with the weight descirbed in the reference paper
+
+colless_index_weighted <- function(tree){
+  L <- length(tree$tip.label)
+  colless_value <- 0
+  for(i in 1:tree$Nnode){
+    child_taxa <- Descendants(x=tree,node = L+i,type = "children")
+    if(length(child_taxa) == 1)
+      next
+    differ <- abs(node.depth(phy = tree,method = 1)[child_taxa[1]]-node.depth(phy = tree,method = 1)[child_taxa[2]])
+    g <-  max(node.depth(tree,method = 2))-node.depth(tree,method = 2)[L+i]
+    colless_value <- colless_value+differ*(1/2^g)
+  }
+  N <- 0
+  for(j in 0:(L-3)){
+    N <- N+(L-2-j)/2^j
+  }
+  colless_w <- colless_value/N
+  return(colless_w)
+}

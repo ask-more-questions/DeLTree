@@ -36,23 +36,25 @@ get_node_character <- function(phylo_c){
 #'
 #' @return a matrix which stores the number of mutational/non mutation events on edge of the tree
 
-get_site_mutation <- function(phylo_c,site_num,state_num){
+get_site_mutation <- function (phylo_c, site_num, state_num) {
   tree_character <- get_node_character(phylo_c)
-  s <- apply(tree_character,2,as.numeric)
+  s <- apply(tree_character, 2, as.numeric)
   n_sample <- length(phylo_c$tip.label)
-  parent_child_mutation <- matrix(data=0,nrow = nrow(phylo_c$edge),ncol = site_num)
-  count_info <- matrix(data = 0,nrow = state_num,ncol = site_num)
-  for (site in 1:site_num){
-    for (i in 1:nrow(phylo_c$edge)){
-      node1 <- phylo_c$edge[i,1]
-      node2 <- phylo_c$edge[i,2]
-      parent_child_mutation[i,site] <- s[node1,site]-s[node2,site]
+  one_generation_edge <- which(phylo_c$edge.length==1)
+  count_info <- matrix(data = 0, nrow = state_num, ncol = site_num)
+  if(length(one_generation_edge)!=0){
+     parent_child_mutation <- matrix(data = 0, nrow = length(one_generation_edge),ncol = site_num)
+  for (site in 1:site_num) {
+    for (i in 1:length(one_generation_edge)) {
+      node1 <- phylo_c$edge[one_generation_edge[i], 1]
+      node2 <- phylo_c$edge[one_generation_edge[i], 2]
+      parent_child_mutation[i, site] <- s[node1, site] - s[node2, site]
     }
-    for (j in 1:state_num){
-      count_info[j,site] <- length(which(parent_child_mutation[,site] == (1-j+1)))
+    for (j in 1:state_num) {
+      count_info[j, site] <- length(which(parent_child_mutation[,site] == (1 - j + 1)))
     }
-    count_info[2,site] <- length(which(s[,site] == '1') > n_sample)
+    count_info[2,site] <- sum(s[phylo_c$edge[one_generation_edge,2], site]==1)#only consider edge length 1 situation
   }
-
+  }
   return(count_info)
 }
