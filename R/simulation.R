@@ -9,18 +9,18 @@
 #'
 #' @export
 topology_simulation <- function(bifur_pro,nGen){
-  tree_i <- stree(2,"balanced",tip.label = 1:2)
-  tree_i$edge.length <- rep(1,nrow(tree_i$edge))
-  round <- 1
-  add_n <- 2
+  tree_i <- stree(n = 1,tip.label = 1)
+  tree_i$edge.length <- rep(0,nrow(tree_i$edge))
+  round <- 0
+  add_n <- 1
   while(round < nGen){
     leaves <- tree_i$tip.label
     for(i in 1:length(leaves)){
       l <- runif(1,min = 0,max = 1)
       if (l <= bifur_pro){
         tree_i <- add.tips(tree_i,tips = c((add_n+1),(add_n+2)),where = as.character(leaves[i]),edge.length = c(1,1))
-        tree_i <- drop.tip(tree_i,tip = as.character(leaves[i]))
-        add_n <- add_n + 3
+        tree_i <- drop.tip(tree_i,tip = as.character(leaves[i]),collapse.singles = FALSE)
+        add_n <- add_n + 2
       } else {
         leaf_index <- which(tree_i$tip.label %in% as.character(leaves[i]))
         tree_i$edge.length[which(tree_i$edge[,2] %in% leaf_index)] <- tree_i$edge.length[which(tree_i$edge[,2] %in% leaf_index)] + 1
