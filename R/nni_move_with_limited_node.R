@@ -9,10 +9,10 @@
 nj_tree <- function(character_info,site_num){
   bc_list <- strsplit(character_info$state,"")
   x  <- c(rep(1,site_num))
-  for (i in 1:length(bc_mtx))
+  for (i in 1:length(bc_list))
     x <- rbind(x,bc_list[[i]])
   bc_mtx <- apply(x, 2, as.numeric)
-  rownames(bc_mtx) <- c("root",paste(dat$cell,dat$state,sep = "_"))
+  rownames(bc_mtx) <- c("root",paste(character_info$cell,character_info$state,sep = "_"))
   n_cell <-  nrow(bc_mtx)
   d <- matrix(ncol =  n_cell,nrow = n_cell )
   rownames(d) <- rownames(bc_mtx)
