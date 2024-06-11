@@ -120,7 +120,7 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 #' @param non_bifur_pro a parameter which describes the proportion of cell not bifurcated after one generation time.
 #' @param edgelength a data frame which bind the edge attribute and edge.length attribute of a phylo structure.
 #' @description
-#'    This function takes the proportion of  bifurcation event/non bifurcation event
+#'    This function takes the proportion of non bifurcation event
 #'    as the base and number of non-bifurcation event as the power to propose a topology biased
 #'    score under the discrete edge length and fixed tree height model in which
 #'    edge length bigger than one implies (n-1) continuous non bifurcation event.
@@ -128,12 +128,13 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 #'
 #' @return a length-one numeric
 bifur_punish<- function(non_bifur_pro,edgelength){
-  edgelength <- edgelength[-1,]
-  non_bifurcation_time <- sum(edgelength[(edgelength[,3]>1),3]-1)
-  #reward <- sum(edgelength[,3] == 0)
-  y <- (non_bifur_pro/(1-non_bifur_pro))^non_bifurcation_time
+  non_bifurcation_time <- sum(edgelength[-1,3]-1) + edgelength[1,3]
+  y <- (non_bifur_pro)^non_bifurcation_time
   return(y)
 }
+
+
+
 
 #' @title Likelihood of bifurcation within two generations
 #'
@@ -157,7 +158,7 @@ bifur_punish<- function(non_bifur_pro,edgelength){
 #'
 #' @return a non-negative score which describe  how many times its more likely to bifurcate in one generation time than not to bifurcate.
 str_cherry_lik <- function(left_child,right_child,mu,alpha,non_bifur_pro){
-  puni_constant <- log10(non_bifur_pro/(1-non_bifur_pro))
+  puni_constant <- log10(non_bifur_pro)
   site_num <- dim(left_child)[1]
   state_num <- dim(left_child)[2]
   parentnode_i <- get_parent(left_child,right_child,left_branch_length = 2,right_branch_length = 2,mu,alpha)
@@ -318,7 +319,7 @@ likelihood_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alterna
     ntaxa <- length(which(unlist(sapply(recorder$round,"["))[1:n_node] == round))
   }
   tree_txt <- paste(recorder$cherry_index[[n_node]],";root",sep = "")
-  recon_tree <- read.newick(text = tree_txt)
+  recon_tree <- read.tree(text = tree_txt)
   return(recon_tree)
 }
 

@@ -71,37 +71,43 @@ cherry_likelihood <- function(left_child,right_child,mu,alpha,non_bifur_pro,bran
 #'
 #' @return an object of class "phylo"
 
-direct_assignment<- function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
+direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   node_h <- list()
   n_sample <- length(phylo$tip.label)
   node_h$nheight[1:n_sample] <- nGen
   if(phylo$Nnode==n_sample) # 2023.01.08修正，未在github上更新
     phylo <- remove_pseudonode(phylo)
+  n_depth <- matrix(data = 0,nrow = nrow(phylo$edge),ncol = 2)
+  for(e in 1:nrow(phylo$edge)){
+    n_depth[e,1] <- phylo$edge[e,2]
+    n_depth[e,2] <- length(nodepath(phy = phylo,from = phylo$edge[1,1],to =phylo$edge[e,2]))-1
+  }
+  n_depth <- rbind(c((n_sample+1),0),n_depth)
   node_path <- nodepath(phylo)
   node_df <- as.data.frame(sapply(node_path, "[", i = 1:max(sapply(node_path,length))))
   node_df[is.na(node_df)] <- 0
   barcode_state <- tidyr::unite(as.data.frame(get_node_character(phylo_c = phylo)),col = "state",sep = "")$state
   parent_node <- onehot_coding(prefix_state(node_info = barcode_state,state_num),state_num)
-  puni_constant <- log10(non_bifur_pro/(1-non_bifur_pro))
+  puni_constant <- log10(non_bifur_pro) # changes
   for(l in nrow(node_df):2)
     for (j in 1:(ncol(node_df)-1))
       for (k in (j+1):ncol(node_df))
         if (node_df[l,k] != 0 & (node_df[(l-1),j] == node_df[(l-1),k]) & (node_df[l,k] != node_df[l,j])){
-          if (node_df[l,j] <= n_sample & node_df[l,k] <= n_sample){
-            branch_l <- 0
-          } else branch_l <- 1
+          branch_l <- 1
           h_d <- node_h$nheight[node_df[l,j]]-node_h$nheight[node_df[l,k]] #  height difference in cell
-          #limit <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])])-1
-          limit <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])]) - (max(node.depth(phylo,method = 2))-node.depth(phylo,method = 2)[node_df[(l-1),k]]) # need further inspect
+          limit <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])])-n_depth[n_depth[,1]==node_df[(l-1),k],2]
+          if(limit < 1){
+            branch_l <- 0
+          }
           while(branch_l < limit){
-              score_c <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = branch_l,branch_r = (branch_l+h_d),mu,alpha,non_bifur_pro,r_height = limit)
-              score_n <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = (1+branch_l),branch_r = (branch_l+h_d+1),mu,alpha,non_bifur_pro,r_height = limit)
-              if (score_c > score_n){
-                break
-              } else branch_l <- branch_l + 1
-            }
+            score_c <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = branch_l,branch_r = (branch_l+h_d),mu,alpha,non_bifur_pro,r_height = limit)
+            score_n <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = (1+branch_l),branch_r = (branch_l+h_d+1),mu,alpha,non_bifur_pro,r_height = limit)
+            if (score_c > score_n){
+              break
+            } else branch_l <- branch_l + 1
+          }
           node_h$nheight[node_df[(l-1),k]] <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])]) - branch_l
-      }
+        }
   for (x in 1:nrow(phylo$edge))
     phylo$edge.length[x] <- node_h$nheight[phylo$edge[x,2]]-node_h$nheight[phylo$edge[x,1]]
   phylo <- add_pseudonode(phylo)

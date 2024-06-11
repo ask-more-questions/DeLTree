@@ -11,7 +11,7 @@ nni_iter_withedgelength_pseudonode(
   nGen,
   non_bifur_pro,
   state_num,
-  edgelength_assignment = "bottom up iteration"
+  edgelength_assignment = "direct assignment"
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ nni_iter_withedgelength_pseudonode(
 
 \item{state_num}{number of mutation outcomes}
 
-\item{edgelength_assignment}{two options of edgelength assignment, choose from c("bottom up iteration","direkt assignment"). Default as direkt assignment}
+\item{edgelength_assignment}{two options of edgelength assignment, choose from c("bottom up iteration","direct assignment"). Default as direct assignment}
 }
 \value{
 a list of nni trees with optimized edge length and likelihood.

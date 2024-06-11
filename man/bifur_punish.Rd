@@ -15,7 +15,7 @@ bifur_punish(non_bifur_pro, edgelength)
 a length-one numeric
 }
 \description{
-This function takes the proportion of  bifurcation event/non bifurcation event
+This function takes the proportion of non bifurcation event
 as the base and number of non-bifurcation event as the power to propose a topology biased
 score under the discrete edge length and fixed tree height model in which
 edge length bigger than one implies (n-1) continuous non bifurcation event.
