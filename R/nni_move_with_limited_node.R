@@ -3,22 +3,30 @@
 #'
 #' @param character_info A data frame with two columns which saves cell name and barcode respectively
 #' @param site_num the length of barcode
+#' @param original_state default as "1" in the dream challenge data.
 #'
 #' @return a rooted binary tree.
 #' @export
-nj_tree <- function(character_info,site_num){
+nj_tree <- function(character_info,site_num,original_state = "1"){
   bc_list <- strsplit(character_info$state,"")
-  x  <- c(rep(1,site_num))
-  for (i in 1:length(bc_mtx))
+  x  <- c(rep(original_state,site_num))
+  for (i in 1:length(bc_list))
     x <- rbind(x,bc_list[[i]])
   bc_mtx <- apply(x, 2, as.numeric)
-  rownames(bc_mtx) <- c("root",paste(dat$cell,dat$state,sep = "_"))
+  rownames(bc_mtx) <- c("root",paste(character_info$cell,character_info$state,sep = "_"))
   n_cell <-  nrow(bc_mtx)
-  d <- matrix(ncol =  n_cell,nrow = n_cell )
+  d <- matrix(data = 0,ncol =  n_cell,nrow = n_cell )
   rownames(d) <- rownames(bc_mtx)
   for (i in 1:n_cell)
     for (j in 1:n_cell)
-      d[i,j] <- sum(abs(bc_mtx[i,]-bc_mtx[j,]))
+      for (s in 1:site_num){
+        if (bc_mtx[i,s]==bc_mtx[j,s]){
+          d[i,j] <- d[i,j] + 0
+        } else if (bc_mtx[i,s]==original_state | bc_mtx[j,s]==original_state){
+          d[i,j] <- d[i,j] + 1
+        } else
+          d[i,j] <- d[i,j] + 2
+      }
   tree_nj <- NJ(d)
   tree_nj <- root(tree_nj,"root")
   # having the nj tree, root() is necesary for tree to be rooted

@@ -4,12 +4,14 @@
 \alias{nj_tree}
 \title{Title Neighbor-joining with define hamming distance,especially for barcode with three state and "1" denoted as original state}
 \usage{
-nj_tree(character_info, site_num)
+nj_tree(character_info, site_num, original_state = "1")
 }
 \arguments{
 \item{character_info}{A data frame with two columns which saves cell name and barcode respectively}
 
 \item{site_num}{the length of barcode}
+
+\item{original_state}{default as "1" in the dream challenge data.}
 }
 \value{
 a rooted binary tree.

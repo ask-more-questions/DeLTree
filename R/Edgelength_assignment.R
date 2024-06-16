@@ -100,13 +100,13 @@ direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
             branch_l <- 0
           }
           while(branch_l < limit){
-            score_c <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = branch_l,branch_r = (branch_l+h_d),mu,alpha,non_bifur_pro,r_height = limit)
-            score_n <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = (1+branch_l),branch_r = (branch_l+h_d+1),mu,alpha,non_bifur_pro,r_height = limit)
+            score_c <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = branch_l,branch_r = (branch_l-h_d),mu,alpha,non_bifur_pro,r_height = limit)
+            score_n <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = (1+branch_l),branch_r = (branch_l-h_d+1),mu,alpha,non_bifur_pro,r_height = limit)
             if (score_c > score_n){
               break
             } else branch_l <- branch_l + 1
           }
-          node_h$nheight[node_df[(l-1),k]] <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])]) - branch_l
+          node_h$nheight[node_df[(l-1),k]] <- node_h$nheight[node_df[l,j]]- branch_l
         }
   for (x in 1:nrow(phylo$edge))
     phylo$edge.length[x] <- node_h$nheight[phylo$edge[x,2]]-node_h$nheight[phylo$edge[x,1]]
