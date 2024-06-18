@@ -79,10 +79,10 @@ direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
     phylo <- remove_pseudonode(phylo)
   n_depth <- matrix(data = 0,nrow = nrow(phylo$edge),ncol = 2)
   for(e in 1:nrow(phylo$edge)){
-    n_depth[e,1] <- phylo$edge[e,2]
-    n_depth[e,2] <- length(nodepath(phy = phylo,from = phylo$edge[1,1],to =phylo$edge[e,2]))-1
+    n_depth[e,1] <- phylo$edge[e,1]
+    n_depth[e,2] <- length(nodepath(phy = phylo,from = phylo$edge[1,1],to =phylo$edge[e,1]))-1
   }
-  n_depth <- rbind(c((n_sample+1),0),n_depth)
+  n_depth <- unique(n_depth)
   node_path <- nodepath(phylo)
   node_df <- as.data.frame(sapply(node_path, "[", i = 1:max(sapply(node_path,length))))
   node_df[is.na(node_df)] <- 0
@@ -96,8 +96,8 @@ direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
           branch_l <- 1
           h_d <- node_h$nheight[node_df[l,j]]-node_h$nheight[node_df[l,k]] #  height difference in cell
           limit <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])])-n_depth[n_depth[,1]==node_df[(l-1),k],2]
-          if(limit < 1){
-            branch_l <- 0
+          while (branch_l-h_d < 1){
+            branch_l <- branch_l+1
           }
           while(branch_l < limit){
             score_c <- cherry_likelihood(left_child = parent_node[[node_df[l,j]]],right_child = parent_node[[node_df[l,k]]],branch_l = branch_l,branch_r = (branch_l-h_d),mu,alpha,non_bifur_pro,r_height = limit)
