@@ -80,7 +80,7 @@ direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   n_depth <- matrix(data = 0,nrow = nrow(phylo$edge),ncol = 2)
   for(e in 1:nrow(phylo$edge)){
     n_depth[e,1] <- phylo$edge[e,1]
-    n_depth[e,2] <- length(nodepath(phy = phylo,from = phylo$edge[1,1],to =phylo$edge[e,1]))-1
+    n_depth[e,2] <- length(nodepath(phy = phylo,from = (n_sample+1),to =phylo$edge[e,1]))-1
   }
   n_depth <- unique(n_depth)
   node_path <- nodepath(phylo)
