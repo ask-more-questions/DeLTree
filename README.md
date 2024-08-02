@@ -2,7 +2,7 @@
 Here we introduce a discrete time model to account for the synchronous process of clonal expansion and barcode evolution with a Maximum Likelihood framework. Hence, we model over the cellular geneaology as discrete branching process. For proliferation-active cells like zygote or stem cells, We uses the Galton-Watson process to model over the process of clonal expansion starting from a single progenitor cell after fixed generations,which incorporate the fixed duration of the tracing experiment and provdies intuitive understanding of the edge length as generation time in the reconstructed tree.
 
 ### DeLTree Scheme
-
+[![Scheme of DeLTree](/Scheme of DeLTree.jpg)]
 
 
 ### Usage 
