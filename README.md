@@ -35,7 +35,7 @@ Here the `nGen` implies a prefixed tree height based on experimental duration sc
 ### Run
 #### Discrete bifurcation on tree simulation
 Here we present a simulation example with fixed time duration and bifurcation probability per generation time.<br>
-Supposing a no death scheme for $g$ generation time and expected clonal size of $N$ cells. We compute an estimated bifurctaion probability per generation time as $p_{bifur} = \exp(\frac{log(N)}{g})-1$. Here we estimate the $p_{bifur}$ as 0.76 when $g$ = 6,$N$ = 30. <br> 
+Supposing a no death scheme for $g$ generation time and expected clonal size of $N$ cells. We compute an estimated bifurctaion probability per generation time as $p_{bifur} = \exp(\frac{log(N)}{g})-1$. Here we estimate the $p_{bifur}$ as 0.76 when $g$ = 6, $N$ = 30. <br> 
 ```
 sim_tree = topology_similation(bifur_pro = 0.76 ,nGen = 6)
 mu = rep(0.15,10)
