@@ -10,7 +10,6 @@ likelihood_based_recon(
   alpha,
   non_bifur_pro,
   alternative_threshold,
-  nGen,
   site_num,
   state_num,
   precluster_replicate = TRUE
@@ -26,8 +25,6 @@ likelihood_based_recon(
 \item{non_bifur_pro}{A parameter which describes the proportion of cell not bifurcated after one generation time}
 
 \item{alternative_threshold}{Default as zero, if 1, two sequences are 10 times more likely to have a bifurcation event in 2 generation.}
-
-\item{nGen}{fixed tree height based on experimental duration and one generation of certain cell}
 
 \item{site_num}{the length of barcode}
 
