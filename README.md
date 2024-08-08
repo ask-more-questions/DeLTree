@@ -17,17 +17,54 @@ We provide two function to reconstruct a starting tree from the barcode infomati
 
 ##### Neighbor Joining tree
 * `nj_tree(character_info = character_info,site_num = 10,original_state = "1")` <br>
-The character_info is a data frame comprising of two variables named cell and barcode.This data frame can be read from format like txt and read.table function in `utils`. <\br>
+The character_info is a data frame comprising of two variables named cell and barcode.This data frame can be read from format like txt and read.table function in `utils`. <br>
 The parameter `site_number` is the number of sites within one barcode. The paramter "original_state" is default set as "1", which implies the unmutated state on barcode. Here, we wanted to stress that, the temporary function only takes 9 differnt mutant denoted as "0","2",..."9" in one site for the limit of one-hot encoding step we use in `caret` package.
 
 ##### Cherry Reconstruction
 * `likelihood_based_recon(character_info,mu,alpha,non_bifur_pro,alternative_threshold,nGen,site_num,state_num,precluster_replicate)` <br>
-This above function describes a reconstruction method with Cherry as basic unit <br>
+This above function describes a reconstruction method with Cherry as basic unit. <br>
 Here, `mu` and `alpha` are the site-specific mutation rate and editing priors on one generation time in barcode respectively. 
 `non_bifur_pro` is the proportion of cell not bifurcated after one generation time, reepresenting growth characteristic of lineages. `Alternative_threshold` is the set default as zero and if 1,two sequences are 10 times more likely to have a bifurcation event in 2 generation.
 
 
 ##### DeLTree Search with Discrete Edge Length
 * `nni_iter_withedgelength_pseudonode(current_tree,mu,alpha,nGen,non_bifur_pro,state_num,edgelength_assignment)` <br>
-In this function, we take  a tree function of phylo structure with its tip label formatted as 'cell_barcode' as input for current tree. and perform one nni move and output the best tree as a phylo structure and the corresponding likelihood. <\br>.
-Here the `nGen` implies a prefixed tree height based on experimental duration on cell divisions. The paramter `edgelength_assignment` provides two options as "bottom up iteration" or "direct assignment", where the former applies the longest pending edge length as initiation and performs bottom-up approach to local optimization, while the latter utilizes the depth of node and discrete edge length rule as constraints for edge length of cherry structure, which is used as default.
+In this function, we take  a tree function of phylo structure with its tip label formatted as 'cell_barcode' as input for current tree. and perform one nni move and output the best tree as a phylo structure and the corresponding likelihood. <br>
+Here the `nGen` implies a prefixed tree height based on experimental duration scaled on cell divisions. Paramter `edgelength_assignment` provides two options as "bottom up iteration" or "direct assignment", where the former applies the longest pending edge length as initiation and performs bottom-up approach to local optimization, while the latter utilizes the depth of node and discrete edge length rule as constraints for edge length of cherry structure, which is used as default.
+
+### Run
+#### Discrete bifurcation on tree simulation
+Here we present a simulation example with fixed time duration and bifurcation probability per generation time.<br>
+Supposing a no death scheme for $g$ generation time and expected clonal size of $N$ cells. We compute an estimated bifurctaion probability per generation time as $p_{bifur} = \exp(\frac{log(N)}{g})-1$. Here we estimate the $p_{bifur}$ as 0.76 when $g$ = 6,$N$ = 30. <br> 
+```
+sim_tree = topology_similation(bifur_pro = 0.76 ,nGen = 6)
+mu = rep(0.15,10)
+alpha = (rep(list(0.5,0.5)),10)
+lineage = lineage_sim(tree = sim_tree,state_num = 3, site_num = 10,mu,alpha)
+sim_tree$tip.label <- sapply(sim_tree$tip.label,function(x){
+    state_index <-lineage$cell %in% x
+    cell_state <- paste(x,lineage$state[state_index],sep = "_")
+    return(cell_state)})
+```
+The below Figure shows an example of a simulated tree with the setting above.
+
+![image](https://github.com/user-attachments/assets/fb59f8fe-dd48-4436-908d-173185e1b540)
+
+#### Run Neighbor Joining and DeLTree NNI
+For barcode information saved in sub_test_1.txt in the dream_challenge_sub1 folder.
+```
+lineage_file = "dream_challenge_sub1/sub1_test_1.txt"
+character_info = read.table(file = lineage_file,header= TRUE,colClass = "character"
+NJ_tree = nj_tree(character_info = character_info,site_num = 10,original_state = "1")
+max_iter = 10
+current_tree <- NJ_tree
+for (j in 1:max_iter){
+  nni_info <- nni_iter_withedgelength_pseudonode(current_tree,mu,alpha,nGen=max(node.depth(current_tree,method = 2)),non_bifur_pro,state_num =3,edgelength_assignment = "direct assignment")
+  if (max(nni_info$likelihood)>current_likelihood){
+      current_tree <- nni_info$best_tree
+      current_likelihood <- max(nni_info$likelihood)
+  } else break
+}
+NJ_DelTree = current_tree
+```
+Here parameter `nGen` is set as as the topological height of the current tree as a loosen tree height range. It is recommended as a default setting to coincide with the non-zero discrete edge length assumption. 
