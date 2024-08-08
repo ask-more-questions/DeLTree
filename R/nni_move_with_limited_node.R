@@ -60,6 +60,26 @@ within_replicate_node <- function(phylo){
 }
 
 
+# Likelihood computation on tree with discrete edge length 
+#' @title Likelihood computation
+#'
+#' @param discrete_EdgeLength_tree  an object of class "phylo"
+#' @param state_num number of mutation outcomes
+#'
+#' @export
+#'
+#' @return a vector which stores the node within a subtree full of replicate barcode sequence
+tree_likelihood <- function(discrete_EdgeLength_tree,state_num){
+  n_sample <- length(discrete_EdgeLength_tree$tip.label)
+  state <- sapply(strsplit(discrete_EdgeLength_tree$tip.label,split = "_"),"[")[2,]
+  node_info <- t(sapply(strsplit(state,split = ""),"["))
+  edgelength_c <- cbind(discrete_EdgeLength_tree$edge,discrete_EdgeLength_tree$edge.length)
+  parent.node <- onehot_coding(processed_tip_label = prefix_state(node_info,state_num),state_num = state_num)
+  sequenceLikelihood<- sum(log10(emurate_node_path_withpseudonode(phylo = discrete_EdgeLength_tree,parent.node = parent.node,node_edge_length =edgelength_c ,mu = mu,alpha = alpha)[[n_sample+1]][,2]))
+  imbalance_score <- log10(bifur_punish(non_bifur_pro=non_bifur_pro,edgelength =edgelength_c))
+  likelihood_score <- sequenceLikelihood+imbalance_score
+  return(c(sequenceLikelihood,imbalance_score,likelihood_score))
+}
 
 #' Selet nni node
 #'
