@@ -6,7 +6,7 @@ Here we introduce a discrete time model to account for the synchronous process o
 
 
 ### Usage 
-To reproduce the DeLTree's reconstruction for Subchallenge 1 in DREAM CHALLENGE, we provides the code within the RMarkdown file in DeLTree_on_dream_challenge.html file, and the dataset on dream_challenge_sub1 folder with easy installation of DeLTree package
+To reproduce the DeLTree's reconstruction for Subchallenge 1 in DREAM CHALLENGE, we provides the code within the RMarkdown file in DeLTree_scripts.R file, and the dataset on dream_challenge_sub1 folder with easy installation of DeLTree package
 ```
 library(devtools)
 install_github("ask-more-questions/DeLTree")
