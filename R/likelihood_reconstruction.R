@@ -228,7 +228,7 @@ add_pseudonode <- function(phylo){
 #'
 #' @return a phylo structure without edge length
 
-likelihood_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alternative_threshold,nGen,site_num,state_num,precluster_replicate = TRUE){
+likelihood_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alternative_threshold,site_num,state_num,precluster_replicate = TRUE){
   node_info <- apply(sapply(strsplit(character_info$state,split = ""),"["),1,as.integer)
   n_node <- nrow(character_info)
   recorder <- list()
