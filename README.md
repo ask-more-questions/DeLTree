@@ -39,7 +39,7 @@ Supposing a no death scheme for $g$ generation time and expected clonal size of 
 ```
 sim_tree = topology_similation(bifur_pro = 0.76 ,nGen = 6)
 mu = rep(0.15,10)
-alpha = (rep(list(0.5,0.5)),10)
+alpha = rep(list(0.5,0.5),10)
 lineage = lineage_sim(tree = sim_tree,state_num = 3, site_num = 10,mu,alpha)
 sim_tree$tip.label <- sapply(sim_tree$tip.label,function(x){
     state_index <-lineage$cell %in% x
@@ -54,7 +54,7 @@ The below Figure shows an example of a simulated tree with the setting above.
 For barcode information saved in sub_test_1.txt in the dream_challenge_sub1 folder.
 ```
 lineage_file = "dream_challenge_sub1/sub1_test_1.txt"
-character_info = read.table(file = lineage_file,header= TRUE,colClass = "character"
+character_info = read.table(file = lineage_file,header= TRUE,colClass = "character")
 NJ_tree = nj_tree(character_info = character_info,site_num = 10,original_state = "1")
 max_iter = 10
 current_tree <- NJ_tree
