@@ -11,6 +11,7 @@ To reproduce the DeLTree's reconstruction for Subchallenge 1 in DREAM CHALLENGE,
 library(devtools)
 install_github("ask-more-questions/DeLTree")
 library(DeLTree)
+library(caret)
 ```
 ### Main function and parameters of DeLTree
 We provide two function to reconstruct a starting tree from the barcode infomation and a NNI Search function as main functionns for lineage reconstruction. Here we will present the function alongside along with the choice of parameters.The output of tree is versitile for newick and nexus and other acceptable format accepted in `write.tree` in `ape`.
@@ -37,7 +38,7 @@ Here the `nGen` implies a prefixed tree height based on experimental duration sc
 Here we present a simulation example with fixed time duration and bifurcation probability per generation time.<br>
 Supposing a no death scheme for $g$ generation time and expected clonal size of $N$ cells. We compute an estimated bifurctaion probability per generation time as $p_{bifur} = \exp(\frac{log(N)}{g})-1$. Here we estimate the $p_{bifur}$ as 0.76 when $g$ = 6, $N$ = 30. <br> 
 ```
-sim_tree = topology_similation(bifur_pro = 0.76 ,nGen = 6)
+sim_tree = topology_simulation(bifur_pro = 0.76 ,nGen = 6)
 mu = rep(0.15,10)
 alpha = rep(list(0.5,0.5),10)
 lineage = lineage_sim(tree = sim_tree,state_num = 3, site_num = 10,mu,alpha)
@@ -57,12 +58,14 @@ lineage_file = "dream_challenge_sub1/sub1_test_1.txt"
 character_info = read.table(file = lineage_file,header= TRUE,colClass = "character")
 NJ_tree = nj_tree(character_info = character_info,site_num = 10,original_state = "1")
 max_iter = 10
-current_tree <- NJ_tree
-for (j in 1:max_iter){
-  nni_info <- nni_iter_withedgelength_pseudonode(current_tree,mu,alpha,nGen=max(node.depth(current_tree,method = 2)),non_bifur_pro,state_num =3,edgelength_assignment = "direct assignment")
+non_bifur_pro = 0.8
+nj_tree_del <- direct_assignment(phylo = NJ_tree,nGen = max(node.depth(current_tree,method = 2)),state_num = 3,mu,alpha,non_bifur_pro)
+current_likelihood <- tree_likelihood(discrete_EdgeLength_tree = nj_tree_del,state_num = 3)[3]
+for (j in (1:max_iter)){
+  nni_info <- nni_iter_withedgelength_pseudonode(current_tree = nj_tree_del,mu,alpha,nGen=max(node.depth(current_tree,method = 2)),non_bifur_pro=0.8,state_num =3,edgelength_assignment = "direct assignment")
   if (max(nni_info$likelihood)>current_likelihood){
-      current_tree <- nni_info$best_tree
-      current_likelihood <- max(nni_info$likelihood)
+    current_tree <- nni_info$best_tree
+    current_likelihood <- max(nni_info$likelihood)
   } else break
 }
 NJ_DelTree = current_tree
