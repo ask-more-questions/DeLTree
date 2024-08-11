@@ -58,11 +58,11 @@ lineage_file = "dream_challenge_sub1/sub1_test_1.txt"
 character_info = read.table(file = lineage_file,header= TRUE,colClass = "character")
 NJ_tree = nj_tree(character_info = character_info,site_num = 10,original_state = "1")
 max_iter = 10
-non_bifur_pro = 0.8
-nj_tree_del <- direct_assignment(phylo = NJ_tree,nGen = max(node.depth(current_tree,method = 2)),state_num = 3,mu,alpha,non_bifur_pro)
-current_likelihood <- tree_likelihood(discrete_EdgeLength_tree = nj_tree_del,state_num = 3)[3]
+non_bifur_pro = 0.2
+current_tree <- direct_assignment(phylo = NJ_tree,nGen = max(node.depth(current_tree,method = 2)),state_num = 3,mu,alpha,non_bifur_pro)
+current_likelihood <- tree_likelihood(discrete_EdgeLength_tree = current_tree,state_num = 3)[3]
 for (j in (1:max_iter)){
-  nni_info <- nni_iter_withedgelength_pseudonode(current_tree = nj_tree_del,mu,alpha,nGen=max(node.depth(current_tree,method = 2)),non_bifur_pro=0.8,state_num =3,edgelength_assignment = "direct assignment")
+  nni_info <- nni_iter_withedgelength_pseudonode(current_tree = current_tree,mu,alpha,nGen=max(node.depth(current_tree,method = 2)),non_bifur_pro,state_num =3,edgelength_assignment = "direct assignment")
   if (max(nni_info$likelihood)>current_likelihood){
     current_tree <- nni_info$best_tree
     current_likelihood <- max(nni_info$likelihood)
