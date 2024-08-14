@@ -60,26 +60,6 @@ within_replicate_node <- function(phylo){
 }
 
 
-# Likelihood computation on tree with discrete edge length 
-#' @title Likelihood computation
-#'
-#' @param discrete_EdgeLength_tree  an object of class "phylo"
-#' @param state_num number of mutation outcomes
-#'
-#' @export
-#'
-#' @return a vector which stores the node within a subtree full of replicate barcode sequence
-tree_likelihood <- function(discrete_EdgeLength_tree,state_num){
-  n_sample <- length(discrete_EdgeLength_tree$tip.label)
-  state <- sapply(strsplit(discrete_EdgeLength_tree$tip.label,split = "_"),"[")[2,]
-  node_info <- t(sapply(strsplit(state,split = ""),"["))
-  edgelength_c <- cbind(discrete_EdgeLength_tree$edge,discrete_EdgeLength_tree$edge.length)
-  parent.node <- onehot_coding(processed_tip_label = prefix_state(node_info,state_num),state_num = state_num)
-  sequenceLikelihood<- sum(log10(emurate_node_path_withpseudonode(phylo = discrete_EdgeLength_tree,parent.node = parent.node,node_edge_length =edgelength_c ,mu = mu,alpha = alpha)[[n_sample+1]][,2]))
-  imbalance_score <- log10(bifur_punish(non_bifur_pro=non_bifur_pro,edgelength =edgelength_c))
-  likelihood_score <- sequenceLikelihood+imbalance_score
-  return(c(sequenceLikelihood,imbalance_score,likelihood_score))
-}
 
 #' Selet nni node
 #'
@@ -89,9 +69,9 @@ tree_likelihood <- function(discrete_EdgeLength_tree,state_num){
 #' @export
 get_nni_node_noRT <- function(phylo){
   edgelength_c <- cbind(phylo$edge,phylo$edge.length)
-  within_replicate_node <- within_replicate_node(phylo)
+  #within_replicate_node <- within_replicate_node(phylo)
   nni_edge <- edgelength_c[edgelength_c[,2] > length(phylo$tip.label),]
-  nni_edge <- nni_edge[!(nni_edge[,1] %in% within_replicate_node),]
+  #nni_edge <- nni_edge[!(nni_edge[,1] %in% within_replicate_node),]
   nni_edge <- nni_edge[-1,]
   nni_node <- matrix(data = 0, nrow = 2*nrow(nni_edge),ncol = 5)
   j = 1
@@ -310,15 +290,13 @@ local_optiaml_withpseudoRT <- function(tree,mu,alpha,nGen,non_bifur_pro,state_nu
 #' @return a list of nni trees with optimized edge length and likelihood.
 #'
 #'
-nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bifur_pro,state_num,edgelength_assignment = "direct assignment"){
+nni_deltree <- function(current_tree,mu,alpha,nGen,non_bifur_pro,state_num,edgelength_assignment = "direct assignment"){
   nni_recorder <- list()
   state <- sapply(strsplit(x=current_tree$tip.label,split = "_"),"[")[2,]
   node_info <- t(sapply(strsplit(state,split = ""),"["))
   parent.node <- onehot_coding(prefix_state(node_info,state_num),state_num)
   n_sample <- length(parent.node)
   nni_tree <-  nni_tree_noRT(current_tree)
-  node_depth <- sapply(nni_tree,function(x){max(node.depth(x,method = 2))-2})
-  nni_tree <- nni_tree[node_depth <= nGen]
   nni_likelihood <- c()
   for (i in 1:length(nni_tree)){
     if (edgelength_assignment == "bottom up iteration"){
@@ -332,9 +310,33 @@ nni_iter_withedgelength_pseudonode <- function(current_tree,mu,alpha,nGen,non_bi
       nni_likelihood[i] <- sum(log10(emurate_node_path_withpseudonode(phylo = nni_tree[[i]],parent.node = parent.node,node_edge_length = edgelength_c,mu,alpha)[[n_sample+1]][,2])) + log10(bifur_punish(non_bifur_pro = non_bifur_pro,edgelength = edgelength_c))
     } else stop("Wrong input for edgelength_assignment")
     }
-  nni_best <- which(nni_likelihood == max(nni_likelihood))[1]
+  nni_best <- which(nni_likelihood == max(nni_likelihood,na.rm = TRUE))[1]
   nni_best_tree <- nni_tree[[nni_best]]
   nni_recorder$likelihood <- nni_likelihood[nni_best]
   nni_recorder$best_tree <- nni_best_tree
   return(nni_recorder)
+}
+
+# Likelihood computation on tree with discrete edge length
+#' @title Likelihood computation
+#'
+#' @param discrete_EdgeLength_tree  an object of class "phylo"
+#' @param state_num number of mutation outcomes
+#' @param mu a vector of site specific mutation probability.
+#' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
+#' @param non_bifur_pro A parameter which describes the proportion of cell not bifurcated after one generation time
+#'
+#' @export
+#'
+#' @return a vector which stores the node within a subtree full of replicate barcode sequence
+deltree_likelihood <- function(discrete_EdgeLength_tree,state_num,non_bifur_pro,mu,alpha){
+  n_sample <- length(discrete_EdgeLength_tree$tip.label)
+  state <- sapply(strsplit(discrete_EdgeLength_tree$tip.label,split = "_"),"[")[2,]
+  node_info <- t(sapply(strsplit(state,split = ""),"["))
+  edgelength_c <- cbind(discrete_EdgeLength_tree$edge,discrete_EdgeLength_tree$edge.length)
+  parent.node <- onehot_coding(processed_tip_label = prefix_state(node_info,state_num),state_num = state_num)
+  sequenceLikelihood<- sum(log10(emurate_node_path_withpseudonode(phylo = discrete_EdgeLength_tree,parent.node = parent.node,node_edge_length =edgelength_c ,mu = mu,alpha = alpha)[[n_sample+1]][,2]))
+  imbalance_score <- log10(bifur_punish(non_bifur_pro=non_bifur_pro,edgelength =edgelength_c))
+  likelihood_score <- sequenceLikelihood+imbalance_score
+  return(c(sequenceLikelihood,imbalance_score,likelihood_score))
 }

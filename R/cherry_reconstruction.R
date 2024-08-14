@@ -74,12 +74,12 @@ prefix_state <- function(node_info,state_num){
 #' @return A probability matrix
 
 get_probmatrix <- function(t,mu,alpha,state_num){
+  p_matrix <- diag(1,nrow = state_num,ncol = state_num)
   if(length(alpha) != 1){
     if(round(sum(alpha),digits = 3) !=1)
       stop("In multiple sites : vector alpha should sum up to 1")
-    p_matrix <- diag(1,nrow = state_num,ncol = state_num)
     p_matrix[2,] <- append(x = mu*alpha,values = (1-mu),after = 1)
-  } else p_matrix <- matrix(c(1,0,0,mu*alpha,(1-mu),mu*(1-alpha),0,0,1),nrow = 3,byrow = TRUE)
+  }
   if(round(sum(p_matrix[2,]),digits = 3)!=1){
     stop("Wrong P_matrix : rowsum not 1")
   }
@@ -128,7 +128,7 @@ get_parent <- function(child_left,child_right,left_branch_length,right_branch_le
 #'
 #' @return a length-one numeric
 bifur_punish<- function(non_bifur_pro,edgelength){
-  non_bifurcation_time <- sum(edgelength[-1,3]-1) + edgelength[1,3]
+  non_bifurcation_time <- sum(edgelength[-1,3]-1)
   y <- (non_bifur_pro)^non_bifurcation_time
   return(y)
 }
@@ -214,7 +214,6 @@ add_pseudonode <- function(phylo){
 #' @param alpha a list of vectors which describe the site specific priors of mutation outcomes.
 #' @param non_bifur_pro  A parameter which describes the proportion of cell not bifurcated after one generation time
 #' @param alternative_threshold Default as zero, if 1, two sequences are 10 times more likely to have a bifurcation event in 2 generation.
-#' @param nGen fixed tree height based on experimental duration and one generation of certain cell
 #' @param site_num  the length of barcode
 #' @param state_num number of mutation outcomes
 #' @param precluster_replicate Logical. whether or not to cluster the cells with identical barcodes as cluster before reconstruct phylogeny.default as TRUE.
@@ -228,7 +227,7 @@ add_pseudonode <- function(phylo){
 #'
 #' @return a phylo structure without edge length
 
-likelihood_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alternative_threshold,site_num,state_num,precluster_replicate = TRUE){
+cherry_based_recon <- function(character_info,mu,alpha,non_bifur_pro,alternative_threshold,site_num,state_num,precluster_replicate = TRUE){
   node_info <- apply(sapply(strsplit(character_info$state,split = ""),"["),1,as.integer)
   n_node <- nrow(character_info)
   recorder <- list()

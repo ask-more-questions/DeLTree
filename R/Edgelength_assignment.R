@@ -74,13 +74,15 @@ cherry_likelihood <- function(left_child,right_child,mu,alpha,non_bifur_pro,bran
 direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
   node_h <- list()
   n_sample <- length(phylo$tip.label)
-  node_h$nheight[1:n_sample] <- nGen
-  if(phylo$Nnode==n_sample) # 2023.01.08修正，未在github上更新
+  if(phylo$Nnode==n_sample)
     phylo <- remove_pseudonode(phylo)
+  if(nGen >=max(node.depth(phylo,method = 2))){
+    node_h$nheight[1:n_sample] <- nGen
+  } else node_h$nheight[1:n_sample] <- max(node.depth(phylo,method = 2))
   n_depth <- matrix(data = 0,nrow = nrow(phylo$edge),ncol = 2)
   for(e in 1:nrow(phylo$edge)){
-    n_depth[e,1] <- phylo$edge[e,1]
-    n_depth[e,2] <- length(nodepath(phy = phylo,from = (n_sample+1),to =phylo$edge[e,1]))-1
+    n_depth[e,1] <-phylo$edge[e,1]
+    n_depth[e,2] <- length(nodepath(phy = phylo,from = phylo$edge[1,1],to =phylo$edge[e,1]))-1
   }
   n_depth <- unique(n_depth)
   node_path <- nodepath(phylo)
@@ -96,7 +98,7 @@ direct_assignment<-function(phylo,nGen,state_num,mu,alpha,non_bifur_pro){
           branch_l <- 1
           h_d <- node_h$nheight[node_df[l,j]]-node_h$nheight[node_df[l,k]] #  height difference in cell
           limit <- min(node_h$nheight[c(node_df[l,j],node_df[l,k])])-n_depth[n_depth[,1]==node_df[(l-1),k],2]
-          while (branch_l-h_d < 1){
+          while(branch_l-h_d <1){
             branch_l <- branch_l+1
           }
           while(branch_l < limit){
