@@ -72,4 +72,4 @@ for (j in (1:max_iter)){
 }
 NJ_DelTree = current_tree_del
 ```
-Here parameter `nGen` is set as as the topological height of the current tree as a loosen tree height range. It is recommended as a default setting to coincide with the non-zero discrete edge length assumption. 
+Here parameter `nGen` is set as the topological height of the current tree.
